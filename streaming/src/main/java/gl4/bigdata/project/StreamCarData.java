@@ -4,6 +4,7 @@ import gl4.bigdata.project.model.Street;
 import gl4.bigdata.project.model.Timestep;
 import gl4.bigdata.project.model.Vehicle;
 import gl4.bigdata.project.utilies.GeoPosition;
+import gl4.bigdata.project.utilies.StreetLocator;
 import kafka.serializer.StringDecoder;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
@@ -33,30 +34,27 @@ import static org.apache.spark.storage.StorageLevel.MEMORY_ONLY;
 
 public class StreamCarData {
 
+    private static StreetLocator position=new StreetLocator();
 
     public static Map<String,Street> processtimeStep(Timestep timestep)
     {
         Map<String,Street> streets=new HashMap<String,Street>();
 
-        GeoPosition position=new GeoPosition();
+
         for(Vehicle v:timestep.getVehicle())
         {
-            try {
-                String cur=position.getAddressByGpsCoordinates(v.getY(),v.getX());
 
-                Street street= streets.computeIfAbsent(cur, (k) -> new Street(cur));
+            String cur = position.locate(v);
 
-                street.incrementNbCar();
-                street.setSpeed(v.getSpeed());
-                street.increaseCO2(v.getCO2());
-                street.increseNoise(v.getNoise());
-                street.increaseAvgWaiting(v.getWaiting());
+            Street street = streets.computeIfAbsent(cur, (k) -> new Street(cur));
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            street.incrementNbCar();
+            street.setSpeed(v.getSpeed());
+            street.increaseCO2(v.getCO2());
+            street.increseNoise(v.getNoise());
+            street.increaseAvgWaiting(v.getWaiting());
+
+
         }
 
         for (Street street: streets.values())
@@ -117,13 +115,16 @@ public class StreamCarData {
 
                 if(result.size()>0)
                 {
-                    String xmls = String.join("\n", result);
+//                    String xmls = String.join("\n", result);
                     Timestep timestep=null;
 
                     try{
-                        Document doc = Jsoup.parse(xmls);
-                        Elements timesteps= doc.getElementsByTag("timestep");
-                        StringReader xml= new StringReader(timesteps.last().toString());
+//                        Document doc = Jsoup.parse(xmls);
+//                        Elements timesteps= doc.getElementsByTag("timestep");
+//                        StringReader xml= new StringReader(timesteps.last().toString());
+                        StringReader xml= new StringReader(result.get(result.size() - 1));
+
+
 
                         JAXBContext jaxbContext = JAXBContext.newInstance(Timestep.class);
                         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
@@ -138,7 +139,7 @@ public class StreamCarData {
                     }catch (Exception e)
                     {
                         e.printStackTrace();
-                        System.out.println(xmls);
+                        System.out.println(String.join("\n", result));
 
                     }
                 }
