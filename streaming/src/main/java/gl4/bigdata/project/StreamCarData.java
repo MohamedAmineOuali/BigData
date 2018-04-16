@@ -46,7 +46,7 @@ public class StreamCarData {
 
             String cur = position.locate(v);
 
-            Street street = streets.computeIfAbsent(cur, (k) -> new Street(cur));
+            Street street = streets.computeIfAbsent(cur, (k) -> new Street(cur,v.getY(),v.getX()));
 
             street.incrementNbCar();
             street.setSpeed(v.getSpeed());

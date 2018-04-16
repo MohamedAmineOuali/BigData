@@ -9,6 +9,28 @@ public class Street {
     private float noise;
     private float co2;
 
+    private float lng;
+
+    public float getLat() {
+        return lat;
+    }
+
+    public void setLat(float lat) {
+        this.lat = lat;
+    }
+
+    private float lat;
+
+    public float getLng() {
+        return lng;
+    }
+
+    public void setLng(float lang) {
+        this.lng = lang;
+    }
+
+
+
 
     public void process()
     {
@@ -90,7 +112,7 @@ public class Street {
         this.avgSpeed = avgSpeed;
     }
 
-    public Street(String name) {
+    public Street(String name,float lng,float lat) {
         this.nbCars = 0;
         this.name = name;
         this.co2 = 0;
@@ -98,5 +120,7 @@ public class Street {
         this.topSpeed = 0;
         this.avgWaiting=0;
         this.avgSpeed = 0;
+        this.lng=lng;
+        this.lat=lat;
     }
 }
