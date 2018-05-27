@@ -5,7 +5,6 @@ import socket
 from CONSTANTS import *
 
 import logging
-import pydevd
 
 #enable logging
 logging.basicConfig(level=logging.DEBUG)

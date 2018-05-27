@@ -3,7 +3,7 @@ import com.google.gson.Gson;
 import gl4.bigdata.project.model.Street;
 import gl4.bigdata.project.model.Timestep;
 import gl4.bigdata.project.model.Vehicle;
-import gl4.bigdata.project.utilies.GeoPosition;
+import gl4.bigdata.project.utilies.KafkaWriter;
 import gl4.bigdata.project.utilies.StreetLocator;
 import kafka.serializer.StringDecoder;
 import org.apache.spark.SparkConf;
@@ -13,18 +13,11 @@ import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.streaming.Duration;
 import org.apache.spark.streaming.api.java.*;
 import org.apache.spark.streaming.kafka.KafkaUtils;
-
-
-import org.json.simple.parser.ParseException;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import scala.Tuple2;
 
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.*;
 
@@ -66,8 +59,8 @@ public class StreamCarData {
 
     public static void main(String[] args) throws Exception {
 
-        if (args.length < 4) {
-            System.err.println("Usage: Stream Car data <zkQuorum> <group> <topics> <numThreads>");
+        if (args.length < 5) {
+            System.err.println("Usage: Stream Car data <zkQuorum> <group> <topics> <numThreads> <WriteTopic>");
             System.exit(1);
         }
 
@@ -95,7 +88,7 @@ public class StreamCarData {
         kafkaParams.put("zookeeper.connect", args[0]);
         kafkaParams.put("fetch.message.max.bytes", "1100000000");
 
-
+        KafkaWriter producer=new KafkaWriter(args[4]);
 
         JavaPairReceiverInputDStream<String, String> messages=KafkaUtils.createStream(jssc,
                 String.class,
@@ -135,6 +128,8 @@ public class StreamCarData {
                         String json = gson.toJson(streets);
 
                         System.out.println(json);
+                        producer.write("",json);
+
 
                     }catch (Exception e)
                     {

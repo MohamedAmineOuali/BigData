@@ -1,0 +1,31 @@
+  kafka-topics.sh --create --zookeeper localhost:2181\
+                  --replication-factor 1 --partitions 1\
+                  --topic Hello-Kafka
+
+
+
+export SPARK_SUBMIT_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=4000
+
+
+
+nc -l -p 10000| python
+
+
+kafka-console-consumer.sh --zookeeper localhost:2181 —topic Hello-Kafka --from-beginning
+
+
+
+
+spark-submit --class gl4.bigdata.project.StreamCarData --master local[2] streaming-1.0-jar-with-dependencies.jar  localhost:2181 test Hello-Kafka 1 spark-node
+
+
+
+
+kafka-topics.sh --create --zookeeper localhost:2181 \
+                  --replication-factor 1 --partitions 1\
+                  --topic spark-node
+                  
+                  
+kafka-console-consumer.sh --zookeeper localhost:2181 —topic spark-node --from-beginning
+
+
