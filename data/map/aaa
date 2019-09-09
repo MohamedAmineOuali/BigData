@@ -1,0 +1,19 @@
+netconvert --osm-files map.osm --output.street-names --tls.join  -o map.net.xml
+
+polyconvert --proj.plain-geo --net-file map.net.xml --osm-files map.osm --type-file typemap.xml -o map.poly.xml 
+
+python "C:\Program Files (x86)\DLR\Sumo\tools\randomTrips.py" -n map.net.xml -e 10000 -l
+
+python "C:\Program Files (x86)\DLR\Sumo\tools\randomTrips.py" -n map.net.xml --binomial 100 --period 0.6  --validate --fringe-factor 100 -r map.rou.xml -e 100000 -l
+
+
+python "C:\Program Files (x86)\DLR\Sumo\tools\route2trips.py" map.rou.xml
+
+
+
+sumo-gui -c map.sumo.cfg --emission-output 192.168.1.5:10000
+
+
+	36.8568
+10.1841		10.2639	
+	36.8233
